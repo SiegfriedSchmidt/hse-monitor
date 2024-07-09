@@ -1,0 +1,15 @@
+{
+  "name": "HSEMonitor",
+  "short_name": "HSE",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#fff",
+  "description": "App to monitor hse",
+  "icons": [
+    {
+      "src": "./vite.svg",
+      "sizes": "48x48",
+      "type": "image/svg"
+    }
+  ]
+}

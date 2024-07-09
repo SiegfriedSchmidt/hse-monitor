@@ -85,7 +85,7 @@ def parse_xlsx(file: io.BytesIO):
 
     df = pd.read_excel(file, index_col=0, header=14, engine='openpyxl')
     df: pandas.DataFrame = df.loc[:, ~df.columns.str.contains('^Unnamed')]
-    print(df.columns)
+    # print(df.columns)
     print("\nОбщая статистика")
     get_stats(df, table_head.budget_places)
 
