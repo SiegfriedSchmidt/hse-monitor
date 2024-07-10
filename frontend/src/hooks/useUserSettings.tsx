@@ -10,10 +10,5 @@ export default function useUserSettings() {
     localStorage.setItem("userSettings", JSON.stringify(userSettings));
   }
 
-  function removeUserSettings() {
-    setUserSettings(null)
-    localStorage.removeItem("userSettings")
-  }
-
-  return {userSettings, addUserSettings, removeUserSettings};
+  return {userSettings, addUserSettings};
 }

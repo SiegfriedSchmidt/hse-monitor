@@ -23,6 +23,9 @@ class AddSubscriptionPydantic(BaseModel):
 @router.post('/change_subscription')
 async def change_subscription(data: AddSubscriptionPydantic):
     if data.pushEnabled:
+        subscription = Subscription.select().where(Subscription.pushSubscription == data.subscription)
+        if subscription.exists():
+            return {'status': 'success', 'content': subscription.get().id}
         subscription = Subscription.create(pushSubscription=data.subscription)
         return {'status': 'success', 'content': subscription.id}
     else:
