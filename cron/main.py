@@ -10,6 +10,7 @@ import openpyxl
 import pandas as pd
 import pydantic
 
+from pprint import pprint
 from lib.api import get_directions, add_stats
 from lib.init import update_timeout
 from lib.logger import logger
@@ -62,11 +63,50 @@ def print_stat(string: str, data):
     print(f'{string:<27}{data}')
 
 
-def get_stats(df: pandas.DataFrame, head: str, budget_places: int):
+def get_table_stats(table_head):
+    return {'type': 'stats', 'head': 'Информация о направлении', 'values': [
+        {'text': 'Бюджетные места', 'value': str(table_head.budget_places), 'diff': 0},
+        {'text': 'Платные места', 'value': str(table_head.paid_places), 'diff': 0},
+        {'text': 'Ссылка', 'value': " https://ba.hse.ru/base2024", 'diff': 0}
+    ]}
+
+
+def get_general_stats(df: pandas.DataFrame, budget_places):
     values = []
 
     all_applications = df.shape[0]
     add_stat_val(values, "Количество заявлений:", all_applications)
+
+    my_place = df.index[df['СНИЛС / Уникальный идентификатор'] == '173-102-564 30'].tolist()
+    add_stat_val(values, "Мое место:", 'Сюда не подавал' if len(my_place) == 0 else my_place[0])
+
+    target = df[df['Поступление на места в рамках квоты\nцелевого приема'] == 'Да'].shape[0]
+    add_stat_val(values, "Целевое:", target)
+
+    wat = df[df['Право поступления\nбез вступительных испытаний'] == 'Да'].shape[0]
+    add_stat_val(values, "БВИ:", wat)
+
+    separate_quota = df[df['Поступление на места\nв рамках отдельной квоты'] == 'Да'].shape[0]
+    add_stat_val(values, "Отдельная квота:", separate_quota)
+
+    special_right = df[df['Поступление на места в рамках квоты \nдля лиц, имеющих особое право'] == 'Да'].shape[0]
+    add_stat_val(values, "Особое право:", special_right)
+
+    original = df[df['Оригинал аттестата'] == 'Да'].shape[0]
+    add_stat_val(values, "Оригинал аттестата:", original)
+
+    return {'type': 'stats', 'head': 'Общая статистика', 'values': values}
+
+
+def get_first_priority_stats(df_general: pandas.DataFrame, budget_places):
+    df = df_general[df_general['Приоритет иных мест'] == 1]
+    values = []
+
+    all_applications = df.shape[0]
+    add_stat_val(values, "Количество заявлений:", all_applications)
+
+    my_place = df.index[df['СНИЛС / Уникальный идентификатор'] == '173-102-564 30'].tolist()
+    add_stat_val(values, "Мое место:", 'Сюда не подавал' if len(my_place) == 0 else my_place[0])
 
     target = df[df['Поступление на места в рамках квоты\nцелевого приема'] == 'Да'].shape[0]
     add_stat_val(values, "Целевое:", target)
@@ -102,36 +142,21 @@ def get_stats(df: pandas.DataFrame, head: str, budget_places: int):
     budget_paid = df[(df['Вид места'] == 'Б; К') | (df['Вид места'] == 'К; Б')].shape[0]
     add_stat_val(values, "Бюджет и коммерция:", budget_paid)
 
-    return {'type': 'stats', 'head': head, 'values': values}
+    return {'type': 'stats', 'head': 'Первый приоритет', 'values': values}
 
 
-def get_table_stats(table_head, file_url):
-    return {'type': 'stats', 'head': 'Информация о направлении', 'values': [
-        {'text': 'Бюджетные места', 'value': str(table_head.budget_places), 'diff': 0},
-        {'text': 'Платные места', 'value': str(table_head.paid_places), 'diff': 0},
-        {'text': 'Ссылка', 'value': file_url, 'diff': 0}
-    ]}
-
-
-def get_general_stats(df: pandas.DataFrame, budget_places):
-    return get_stats(df, 'Общая статистика', budget_places)
-
-
-def get_first_priority_stats(df: pandas.DataFrame, budget_places):
-    return get_stats(df[df['Приоритет иных мест'] == 1], 'Первый приоритет', budget_places)
-
-
-def parse_xlsx(file: io.BytesIO, file_url: str):
+def parse_xlsx(file: io.BytesIO):
     stats = []
 
     table_head = get_table_head(file)
     df = pd.read_excel(file, index_col=0, header=14, engine='openpyxl')
     df = df.loc[:, ~df.columns.str.contains('^Unnamed')]
+    # print(df.columns)
 
-    stats.append(get_table_stats(table_head, file_url))
+    stats.append(get_table_stats(table_head))
     stats.append(get_general_stats(df, table_head.budget_places))
     stats.append(get_first_priority_stats(df, table_head.budget_places))
-    return table_head, json.dumps(stats, ensure_ascii=False)
+    return table_head, stats
 
 
 def update_hse_data(directions):
@@ -142,14 +167,15 @@ def update_hse_data(directions):
             continue
 
         logger.info(f'File downloaded, size: {sys.getsizeof(content)} bytes')
+        pprint(parse_xlsx(io.BytesIO(content))[1])
         md5_hash = md5(content)
         if md5_hash == direction['hash']:
             logger.info(f'Information about program "{direction["name"]}" not updated (hashsum not changed)')
             continue
 
-        table_head, stats = parse_xlsx(io.BytesIO(content), direction['url'])
+        table_head, stats = parse_xlsx(io.BytesIO(content))
         logger.info(f'Information about program "{direction["name"]}" successfully updated')
-        add_stats(table_head.time, direction["name"], stats, md5_hash)
+        add_stats(table_head.time, direction["name"], json.dumps(stats, ensure_ascii=False), md5_hash)
 
     logger.info('End updating hse information.')
 

@@ -22,7 +22,7 @@ const Header = () => {
         <Flex pl={4} pt={4} alignItems="center">
           <Menu>
             <MenuButton as={Button}>
-              {directions[directionIdx].stats.length !== 0 ? directions[directionIdx].stats[statIdx].time : 'Нет дат'}
+              {directions[directionIdx].stats.length !== 0 ? directions[directionIdx].stats[statIdx].time : 'Нет данных'}
             </MenuButton>
             <MenuList>
               {directions[directionIdx].stats.map((stat, idx) =>

@@ -5,7 +5,7 @@ import {
   CardBody,
   CardHeader,
   Flex,
-  Heading,
+  Heading, Link,
   Skeleton,
   Spinner,
   Stack,
@@ -35,9 +35,18 @@ const Stats: FC<StatsProps> = ({content}) => {
                   {oneStat.text}
                 </Heading>
                 <Flex>
-                  <Text pt='2' fontSize={isNaN(oneStat.value) ? 'large' : 'xx-large'}>
-                    {oneStat.value}
-                  </Text>
+                  {oneStat.value.startsWith('https')
+                    ?
+                    <Link href={oneStat.value} wordBreak='break-word' pt='2'
+                          fontSize={isNaN(oneStat.value) ? 'large' : 'xx-large'}>
+                      {oneStat.value}
+                    </Link>
+                    :
+                    <Text wordBreak='break-word' pt='2' fontSize={isNaN(oneStat.value) ? 'large' : 'xx-large'}>
+                      {oneStat.value}
+                    </Text>
+                  }
+
                   {diffType !== "" ?
                     <Text pt='2' pl='3' fontSize='xx-large' color={diffColor}>
                       {diffType === "+" ? "+" : ""}{oneStat.diff}
