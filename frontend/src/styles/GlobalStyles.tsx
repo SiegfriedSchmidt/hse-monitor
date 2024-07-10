@@ -6,6 +6,10 @@ const GlobalStyles = createGlobalStyle`
         padding: 0;
         box-sizing: border-box;
     }
+    
+    //body {
+    //    background-color: rgb(26, 32, 44);
+    //}
 `
 
 export default GlobalStyles
