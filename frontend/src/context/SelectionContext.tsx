@@ -1,24 +1,23 @@
 import {createContext, FC, ReactNode, useEffect, useState} from "react";
 import getSelection from "../api/getSelection.ts";
+import DirectionType from "../types/DirectionType.ts";
 
 
 interface SelectionContextProps {
-  directions: string[]
+  directions: DirectionType[] | undefined
   directionIdx: number
-  dates: string[]
-  dateIdx: number
+  statIdx: number
   setDirectionIdx: (directionIdx: number) => void
-  setDateIdx: (directionIdx: number) => void
+  setStatIdx: (timeIdx: number) => void
 }
 
 export const SelectionContext = createContext<SelectionContextProps>({
-  directions: [],
+  directions: undefined,
   directionIdx: 0,
-  dates: [],
-  dateIdx: 0,
+  statIdx: 0,
   setDirectionIdx: () => {
   },
-  setDateIdx: () => {
+  setStatIdx: () => {
   }
 });
 
@@ -27,10 +26,9 @@ interface SelectionContextProviderProps {
 }
 
 export const DirectionContextProvider: FC<SelectionContextProviderProps> = ({children}) => {
-  const [directions, setDirections] = useState<string[]>([])
+  const [directions, setDirections] = useState<DirectionType[] | undefined>(undefined)
   const [directionIdx, setDirectionIdx] = useState<number>(0)
-  const [dates, setDates] = useState<string[]>([])
-  const [dateIdx, setDateIdx] = useState<number>(0)
+  const [statIdx, setStatIdx] = useState<number>(0)
 
   useEffect(() => {
     async function getData() {
@@ -38,15 +36,14 @@ export const DirectionContextProvider: FC<SelectionContextProviderProps> = ({chi
       if (rs.status !== 'success') {
         return
       }
-      setDirections(rs.content.directions)
-      setDates(rs.content.dates)
+      setDirections(rs.content)
     }
 
     getData()
   }, []);
 
   return (
-    <SelectionContext.Provider value={{directions, directionIdx, setDirectionIdx, dates, dateIdx, setDateIdx}}>
+    <SelectionContext.Provider value={{directions, directionIdx, setDirectionIdx, statIdx, setStatIdx}}>
       {children}
     </SelectionContext.Provider>
   );

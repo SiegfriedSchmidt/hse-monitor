@@ -1,4 +1,7 @@
 .idea
 .venv
+.venv-linux
 files
 __pycache__
+tests
+secret

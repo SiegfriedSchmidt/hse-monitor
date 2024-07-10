@@ -67,7 +67,7 @@ export default async function getStatistic(directionIdx: number, dateIdx: number
   status: string,
   content: any[]
 }> {
-  // return await api.get("/getStatistic");
+  // return await api.get("/stats/getStatistic");
   return new Promise((resolve, reject) => {
     setTimeout(() => {
       resolve({status: 'success', content: stubStatistic})

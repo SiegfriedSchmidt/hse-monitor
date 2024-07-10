@@ -7,9 +7,10 @@ const GlobalStyles = createGlobalStyle`
         box-sizing: border-box;
     }
     
-    //body {
-    //    background-color: rgb(26, 32, 44);
-    //}
+    body {
+        margin: auto;
+        max-width: 800px;
+    }
 `
 
 export default GlobalStyles
