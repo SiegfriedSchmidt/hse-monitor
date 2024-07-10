@@ -3,6 +3,7 @@ import {Alert, AlertDescription, AlertIcon, AlertTitle, Skeleton, Stack, Text} f
 import getStatistic from "../../api/getStatistic.ts";
 import {SelectionContext} from "../../context/SelectionContext.tsx";
 import Stats from "../../components/Stats/Stats.tsx";
+import PushSwitch from "../../components/PushSwitch/PushSwitch.tsx";
 
 const HomePage = () => {
   const [content, setContent] = useState<any[] | undefined>(undefined)
@@ -29,24 +30,27 @@ const HomePage = () => {
   }, [directions, directionIdx, statIdx]);
 
   return (
-    !content ?
-      <Stack m={4}>
-        <Skeleton height='50px'/>
-        <Skeleton height='50px'/>
-        <Skeleton height='50px'/>
-      </Stack> : content.length !== 0 ?
-        content.map((block, idx) => {
-          if (block.type === 'stats') {
-            return <Stats key={idx} content={block}/>
-          } else {
-            return <Text>123333</Text>
-          }
-        }) :
-        <Alert mt={10} p={4} status='warning'>
-          <AlertIcon/>
-          <AlertTitle>Информация отсутствует!</AlertTitle>
-          <AlertDescription>Ждите обновления данных</AlertDescription>
-        </Alert>
+    <>
+      <PushSwitch/>
+      {!content ?
+        <Stack m={4}>
+          <Skeleton height='50px'/>
+          <Skeleton height='50px'/>
+          <Skeleton height='50px'/>
+        </Stack> : content.length !== 0 ?
+          content.map((block, idx) => {
+            if (block.type === 'stats') {
+              return <Stats key={idx} content={block}/>
+            } else {
+              return <Text>ERROR</Text>
+            }
+          }) :
+          <Alert mt={10} p={4} status='warning'>
+            <AlertIcon/>
+            <AlertTitle>Информация отсутствует!</AlertTitle>
+            <AlertDescription>Ждите обновления данных</AlertDescription>
+          </Alert>}
+    </>
   );
 };
 

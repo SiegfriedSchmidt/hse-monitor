@@ -11,7 +11,7 @@ import pandas as pd
 import pydantic
 
 from pprint import pprint
-from lib.api import get_directions, add_stats
+from lib.api import get_directions, add_stats, send_push_notifications
 from lib.init import update_timeout
 from lib.logger import logger
 
@@ -105,8 +105,8 @@ def get_general_stats(df: pandas.DataFrame, budget_places, previous_stats=None):
     target = df[df['Поступление на места в рамках квоты\nцелевого приема'] == 'Да'].shape[0]
     add_stat_val(values, "Целевое:", target)
 
-    wat = df[df['Право поступления\nбез вступительных испытаний'] == 'Да'].shape[0]
-    add_stat_val(values, "БВИ:", wat)
+    wee = df[df['Право поступления\nбез вступительных испытаний'] == 'Да'].shape[0]
+    add_stat_val(values, "БВИ:", wee)
 
     separate_quota = df[df['Поступление на места\nв рамках отдельной квоты'] == 'Да'].shape[0]
     add_stat_val(values, "Отдельная квота:", separate_quota)
@@ -134,8 +134,8 @@ def get_first_priority_stats(df_general: pandas.DataFrame, budget_places, previo
     target = df[df['Поступление на места в рамках квоты\nцелевого приема'] == 'Да'].shape[0]
     add_stat_val(values, "Целевое:", target)
 
-    wat = df[df['Право поступления\nбез вступительных испытаний'] == 'Да'].shape[0]
-    add_stat_val(values, "БВИ:", wat)
+    wee = df[df['Право поступления\nбез вступительных испытаний'] == 'Да'].shape[0]
+    add_stat_val(values, "БВИ:", wee)
 
     separate_quota = df[df['Поступление на места\nв рамках отдельной квоты'] == 'Да'].shape[0]
     add_stat_val(values, "Отдельная квота:", separate_quota)
@@ -188,6 +188,7 @@ def parse_xlsx(file: io.BytesIO, previous_stats):
 
 def update_hse_data(directions):
     logger.info('Updating hse information...')
+    am_stats = ''
     for direction in directions:
         content = download_file(direction['url'])
         if not content:
@@ -204,7 +205,14 @@ def update_hse_data(directions):
         logger.info(f'Information about program "{direction["name"]}" successfully updated')
         add_stats(table_head.time, direction["name"], json.dumps(stats, ensure_ascii=False), md5_hash)
         logger.debug(f'Add stats to server')
+        if direction["name"] == 'Прикладная математика':
+            am_stats = stats
 
+    if am_stats:
+        wee = find_stat_by_text("БВИ:", am_stats[1]["values"])[0]["value"]
+        my_place = find_stat_by_text("Мое место:", am_stats[1]["values"])[0]["value"]
+        send_push_notifications(f'БВИ {wee}', f'Место {my_place}')
+        logger.info('Send push notifications')
     logger.info('End updating hse information.')
 
 

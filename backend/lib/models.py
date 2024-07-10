@@ -42,5 +42,6 @@ if __name__ == '__main__':
     # stat = Statistic.select().order_by(Statistic.time.desc()).get()
     # print(stat)
     # stat.delete_instance()
-    # Direction.delete().execute()
+    # Subscription.delete().execute()
     print(*Direction.select(), sep='\n')
+    print(*Subscription.select(), sep='\n')

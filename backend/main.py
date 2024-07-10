@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from lib.init import server_host, server_port
 from lib.logger import setup_uvicorn_logger, setup_peewee_logger, logger
-from lib.routers import stats_router, internal_router
+from lib.routers import stats_router, internal_router, push_router
 
 main_router = APIRouter(prefix='/api')
 app = FastAPI(title='fastapi')
@@ -27,6 +27,7 @@ async def main(request: Request):
 async def main():
     main_router.include_router(stats_router.router)
     main_router.include_router(internal_router.router)
+    main_router.include_router(push_router.router)
 
     setup_peewee_logger()
     setup_uvicorn_logger()

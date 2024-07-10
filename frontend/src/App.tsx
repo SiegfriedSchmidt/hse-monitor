@@ -4,6 +4,7 @@ import HomePage from "./pages/HomePage/HomePage.tsx";
 import NotFoundPage from "./pages/NotFoundPage/NotFoundPage.tsx";
 import {ChakraProvider, extendTheme, ThemeConfig} from "@chakra-ui/react";
 import {DirectionContextProvider} from "./context/SelectionContext.tsx";
+import {UserSettingsContextProvider} from "./context/UserSettingsContext.tsx";
 
 const router = createBrowserRouter(createRoutesFromElements(
   <Route element={<RootLayout/>}>
@@ -23,9 +24,11 @@ function App() {
 
   return (
     <DirectionContextProvider>
-      <ChakraProvider theme={theme}>
-        <RouterProvider router={router}/>
-      </ChakraProvider>
+      <UserSettingsContextProvider>
+        <ChakraProvider theme={theme}>
+          <RouterProvider router={router}/>
+        </ChakraProvider>
+      </UserSettingsContextProvider>
     </DirectionContextProvider>
   )
 }
