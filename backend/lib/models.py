@@ -39,7 +39,8 @@ class Subscription(BaseModel):
 create_tables()
 if __name__ == '__main__':
     # Statistic.delete().execute()
-    stat = Statistic.select().order_by(Statistic.time.desc()).get()
-    print(stat)
-    stat.delete_instance()
+    # stat = Statistic.select().order_by(Statistic.time.desc()).get()
+    # print(stat)
+    # stat.delete_instance()
+    # Direction.delete().execute()
     print(*Direction.select(), sep='\n')

@@ -89,7 +89,6 @@ def get_table_stats(table_head):
     return {'type': 'stats', 'head': 'Информация о направлении', 'values': [
         {'text': 'Бюджетные места', 'value': str(table_head.budget_places), 'diff': 0},
         {'text': 'Платные места', 'value': str(table_head.paid_places), 'diff': 0},
-        {'text': 'Ссылка', 'value': " https://ba.hse.ru/base2024", 'diff': 0}
     ]}
 
 
@@ -195,7 +194,7 @@ def update_hse_data(directions):
             continue
 
         logger.info(f'File downloaded, size: {sys.getsizeof(content)} bytes')
-        pprint(parse_xlsx(io.BytesIO(content), direction["stats"])[1])
+        # pprint(parse_xlsx(io.BytesIO(content), direction["stats"])[1])
         md5_hash = md5(content)
         if md5_hash == direction['hash']:
             logger.info(f'Information about program "{direction["name"]}" not updated (hashsum not changed)')
@@ -204,6 +203,7 @@ def update_hse_data(directions):
         table_head, stats = parse_xlsx(io.BytesIO(content), direction["stats"])
         logger.info(f'Information about program "{direction["name"]}" successfully updated')
         add_stats(table_head.time, direction["name"], json.dumps(stats, ensure_ascii=False), md5_hash)
+        logger.debug(f'Add stats to server')
 
     logger.info('End updating hse information.')
 
