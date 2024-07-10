@@ -22,7 +22,7 @@ async def verify_internal_token(token: Annotated[str, Header()]):
 
 
 class InternalStatsPydantic(BaseModel):
-    time: datetime.datetime
+    time: str
     direction: str
     stats: str
     hash: str

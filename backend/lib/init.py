@@ -10,5 +10,5 @@ database_path = Path(
 
 admin_email = os.environ.get("ADMIN_EMAIL", 'admin@mail.ru')
 server_host = os.environ.get("HOST", "192.168.1.1")
-server_port = int(os.environ.get("PORT", 8002))
+server_port = int(os.environ.get("PORT", 8003))
 vapid_private_key_path = secret_folder_path / 'private_key.pem'

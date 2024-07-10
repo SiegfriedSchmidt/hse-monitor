@@ -1,3 +1,5 @@
+import json
+
 from fastapi import APIRouter
 from pydantic import BaseModel
 
@@ -32,4 +34,4 @@ async def getStatistic(data: StatsGetStatisticPydantic):
     if not statistic.exists():
         return {'status': 'error', 'content': 'Неверный id'}
 
-    return {'status': 'success', 'content': statistic.get().stats}
+    return {'status': 'success', 'content': json.loads(statistic.get().stats)}
