@@ -51,7 +51,7 @@ async def get_directions(commons=Depends(verify_internal_token)):
             'name': direction.name,
             'url': direction.url,
             'hash': hash,
-            'stats': stats
+            'stats': json.loads(stats) if stats else ''
         })
 
     return {'status': 'success', 'content': directions}
