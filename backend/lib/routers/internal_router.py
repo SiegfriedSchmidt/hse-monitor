@@ -9,7 +9,7 @@ from pywebpush import webpush, WebPushException
 
 from lib.config_reader import config
 from lib.init import vapid_private_key_path, admin_email
-from lib.models import Statistic, Subscription, Direction, Time
+from lib.models import Statistic, Subscription, Direction
 
 router = APIRouter(prefix='/internal')
 
@@ -39,13 +39,33 @@ async def add_stats(data: InternalStatsPydantic, commons=Depends(verify_internal
 async def get_directions(commons=Depends(verify_internal_token)):
     directions = []
     for direction in Direction.select():
+        statistic = direction.stats.select().order_by(Statistic.time.desc())
+        stats = ''
+        hash = ''
+        if statistic.exists():
+            statistic = statistic.get()
+            stats = statistic.stats
+            hash = statistic.hash
+
         directions.append({
             'name': direction.name,
             'url': direction.url,
-            'hash': direction.stats.select().order_by(Statistic.time.desc()).get()
+            'hash': hash,
+            'stats': stats
         })
 
     return {'status': 'success', 'content': directions}
+
+
+class InternalAddDirectionPydantic(BaseModel):
+    name: str
+    url: str
+
+
+@router.post('/add_direction')
+async def add_direction(data: InternalAddDirectionPydantic, commons=Depends(verify_internal_token)):
+    Direction.create(name=data.name, url=data.url)
+    return {'status': 'success'}
 
 
 class InternalSendPushNotificationPydantic(BaseModel):

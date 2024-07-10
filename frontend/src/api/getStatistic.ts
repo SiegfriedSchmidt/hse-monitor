@@ -63,14 +63,19 @@ const stubStatistic = [
 
 ]
 
-export default async function getStatistic(directionIdx: number, dateIdx: number): Promise<{
+export default async function getStatistic(statId: number): Promise<{
   status: string,
   content: any[]
 }> {
-  // return await api.get("/stats/getStatistic");
-  return new Promise((resolve, reject) => {
+  const rs = await api.post("/stats/getStatistic", {statId});
+  return new Promise((resolve) => {
     setTimeout(() => {
-      resolve({status: 'success', content: stubStatistic})
+      resolve(rs)
     }, 1000)
   })
+  // return new Promise((resolve, reject) => {
+  //   setTimeout(() => {
+  //     resolve({status: 'success', content: stubStatistic})
+  //   }, 1000)
+  // })
 }

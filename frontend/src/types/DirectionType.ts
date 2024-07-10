@@ -1,7 +1,7 @@
 export default interface DirectionType {
   name: string
   stats: {
-    time: Date
+    time: string
     id: number
   }[]
 }

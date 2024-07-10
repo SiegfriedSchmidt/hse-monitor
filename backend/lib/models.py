@@ -5,7 +5,7 @@ database = peewee.SqliteDatabase(database_path, pragmas={'foreign_keys': 1})
 
 
 def create_tables():
-    database.create_tables([Statistic, Subscription])
+    database.create_tables([Direction, Statistic, Subscription])
 
 
 class BaseModel(peewee.Model):

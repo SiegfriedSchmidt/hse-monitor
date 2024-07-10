@@ -22,11 +22,11 @@ const Header = () => {
         <Flex pl={4} pt={4} alignItems="center">
           <Menu>
             <MenuButton as={Button}>
-              {directions[directionIdx].stats.length !== 0 ? directions[directionIdx].stats[statIdx].time.getTime() : 'Нет дат'}
+              {directions[directionIdx].stats.length !== 0 ? directions[directionIdx].stats[statIdx].time : 'Нет дат'}
             </MenuButton>
             <MenuList>
               {directions[directionIdx].stats.map((stat, idx) =>
-                <MenuItem key={idx} onClick={() => setStatIdx(idx)}>{stat.time.getTime()}</MenuItem>)}
+                <MenuItem key={idx} onClick={() => setStatIdx(idx)}>{stat.time}</MenuItem>)}
             </MenuList>
           </Menu>
         </Flex>
