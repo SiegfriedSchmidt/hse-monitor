@@ -14,4 +14,4 @@ USER app
 STOPSIGNAL SIGINT
 
 COPY . /app
-ENTRYPOINT ["python3", "cron.py"]
+ENTRYPOINT ["python3", "main.py"]
