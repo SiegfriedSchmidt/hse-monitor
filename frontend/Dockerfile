@@ -7,4 +7,5 @@ RUN npm ci && \
 
 FROM nginx:stable
 COPY --from=builder /app/dist /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/nginx.conf
+COPY nginx/nginx.conf /etc/nginx/nginx.conf
+COPY nginx/server.conf.template /etc/nginx/templates/server.conf.template
