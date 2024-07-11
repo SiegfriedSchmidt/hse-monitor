@@ -14,7 +14,7 @@ const HomePage = () => {
 
     async function getData() {
       if (directions) {
-        if (directions[directionIdx].stats.length === 0) {
+        if (directions.length === 0 || directions[directionIdx].stats.length === 0) {
           return setContent([])
         }
 
