@@ -12,8 +12,6 @@ services:
     depends_on:
       hse-monitor-backend:
         condition: service_healthy
-    volumes:
-      - ./nginx-templates:/etc/nginx/templates:ro
     networks:
       - proxy-net
       - default
