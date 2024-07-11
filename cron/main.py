@@ -224,6 +224,7 @@ def schedule_parsing():
 def update_parsing():
     directions = get_directions()
     if not directions:
+        logger.warning('No directions found!')
         schedule_parsing()
         return schedule.CancelJob
 
