@@ -55,7 +55,7 @@ services:
     image: siegfriedschmidt/hse-monitor-cron
     container_name: hse-monitor-cron
     depends_on:
-      reminder-backend:
+      hse-monitor-backend:
         condition: service_healthy
     environment:
       - API_HOST=hse-monitor-backend
