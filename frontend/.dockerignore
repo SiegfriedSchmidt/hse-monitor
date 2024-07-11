@@ -1,0 +1,8 @@
+.idea
+test
+certs
+dist
+node_modules
+Dockerfile
+.dockerignore
+__pycache__

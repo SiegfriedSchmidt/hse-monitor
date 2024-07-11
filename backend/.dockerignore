@@ -1,0 +1,9 @@
+.venv
+venv
+files
+.idea
+*.sqlite3
+test
+Dockerfile
+.dockerignore
+__pycache__

@@ -1,0 +1,74 @@
+services:
+  hse-monitor-frontend:
+    platform: linux/amd64
+    build: ./frontend
+    image: siegfriedschmidt/hse-monitor-frontend
+    container_name: hse-monitor-frontend
+    environment:
+      - NGINX_HOST=0.0.0.0
+      - NGINX_PORT=10000
+      - BACKEND_HOST=hse-monitor-backend
+      - BACKEND_PORT=8001
+    depends_on:
+      hse-monitor-backend:
+        condition: service_healthy
+    volumes:
+      - ./nginx-templates:/etc/nginx/templates:ro
+    networks:
+      - proxy-net
+      - default
+    restart: unless-stopped
+
+  hse-monitor-backend:
+    platform: linux/amd64
+    build: ./backend
+    image: siegfriedschmidt/hse-monitor-backend
+    container_name: hse-monitor-backend
+    environment:
+      - SECRET_FOLDER_PATH=/hse-monitor-data/secret
+      - DATABASE_FOLDER_PATH=/hse-monitor-data
+      - ADMIN_EMAIL=admin@mail.ru
+      - HOST=0.0.0.0
+      - PORT=8001
+      - TZ=Europe/Moscow
+    expose:
+      - "8001"
+    volumes:
+      - ./hse-monitor-data:/hse-monitor-data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -f http://localhost:8001/api/ || exit 1"
+        ]
+      interval: 86400s
+      start_period: 10s
+      start_interval: 5s
+      retries: 5
+    networks:
+      - default
+    restart: unless-stopped
+
+  hse-monitor-cron:
+    platform: linux/amd64
+    build: ./cron
+    image: siegfriedschmidt/hse-monitor-cron
+    container_name: hse-monitor-cron
+    depends_on:
+      reminder-backend:
+        condition: service_healthy
+    environment:
+      - API_HOST=hse-monitor-backend
+      - API_PORT=8001
+      - UPDATE_TIMEOUT=300
+      - SECRET_FOLDER_PATH=/hse-monitor-data/secret
+      - TZ=Europe/Moscow
+    volumes:
+      - ./hse-monitor-data:/hse-monitor-data:ro
+    networks:
+      - default
+    restart: unless-stopped
+
+networks:
+  proxy-net:
+    name: hse-monitor-external-network
