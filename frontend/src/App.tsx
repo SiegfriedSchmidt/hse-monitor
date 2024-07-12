@@ -14,7 +14,6 @@ const router = createBrowserRouter(createRoutesFromElements(
 ))
 
 function App() {
-  localStorage.clear()
   const config: ThemeConfig = {
     initialColorMode: 'dark', // 'dark' | 'light'
     useSystemColorMode: false,

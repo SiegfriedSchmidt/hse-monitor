@@ -11,10 +11,10 @@ export default defineConfig({
   server: {
     port: 8000,
     host: '0.0.0.0',
-    // https: {
-    //   cert: fs.readFileSync('./certs/tls.crt'),
-    //   key: fs.readFileSync('./certs/tls.key')
-    // },
+    https: {
+      cert: fs.readFileSync('./certs/tls.crt'),
+      key: fs.readFileSync('./certs/tls.key')
+    },
     proxy: {
       '/api': {
         target: 'http://192.168.1.15:8003',

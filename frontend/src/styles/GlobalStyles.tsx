@@ -6,10 +6,16 @@ const GlobalStyles = createGlobalStyle`
         padding: 0;
         box-sizing: border-box;
     }
-    
+
     body {
         margin: auto;
         max-width: 800px;
+    }
+
+    @media all and (display-mode: standalone) {
+        body {
+            padding-top: 50px;
+        }
     }
 `
 
