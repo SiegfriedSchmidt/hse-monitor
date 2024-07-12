@@ -3,6 +3,8 @@ import react from '@vitejs/plugin-react-swc'
 import fs from "fs";
 import {resolve} from "path";
 
+const development = process.env.NODE_ENV === 'development';
+
 // https://vitejs.dev/config/
 export default defineConfig({
   preview: {
@@ -11,10 +13,10 @@ export default defineConfig({
   server: {
     port: 8000,
     host: '0.0.0.0',
-    https: {
+    https: development ? {
       cert: fs.readFileSync('./certs/tls.crt'),
       key: fs.readFileSync('./certs/tls.key')
-    },
+    } : {},
     proxy: {
       '/api': {
         target: 'http://192.168.1.15:8003',
