@@ -46,6 +46,9 @@ def send_push_notifications(title: str, body: str):
         rs = requests.post(base_path + '/send_push_notifications', headers=headers, json={'title': title, 'body': body})
         if rs.status_code != 200 or rs.json()['status'] != 'success':
             raise MyRequestException(rs.content)
+
+        info = rs.json()['content']
+        logger.info(f'Send push notifications (All/Failed : {info["count"]}/{info["failed"]})')
         return 'success'
     except MyRequestException as error:
         logger.error(f'Api /send_push_notifications request failed! ({repr(error)})')

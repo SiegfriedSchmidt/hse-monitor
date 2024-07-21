@@ -75,8 +75,11 @@ class InternalSendPushNotificationPydantic(BaseModel):
 
 @router.post('/send_push_notifications')
 async def send_push_notifications(data: InternalSendPushNotificationPydantic, commons=Depends(verify_internal_token)):
-    try:
-        for Sub in Subscription.select():
+    count = 0
+    failed = 0
+    for Sub in Subscription.select():
+        count += 1
+        try:
             webpush(
                 subscription_info=json.loads(Sub.pushSubscription),
                 data=json.dumps({
@@ -88,6 +91,7 @@ async def send_push_notifications(data: InternalSendPushNotificationPydantic, co
                     'sub': f'mailto:{admin_email}'
                 }
             )
-        return {'status': 'success'}
-    except WebPushException as ex:
-        return {'status': 'error'}
+        except WebPushException as ex:
+            failed += 1
+
+    return {'status': 'success', 'content': {'count': count, 'failed': failed}}

@@ -92,7 +92,7 @@ def get_table_stats(table_head):
     ]}
 
 
-def get_general_stats(df: pandas.DataFrame, budget_places, previous_stats=None):
+def get_general_stats(df: pandas.DataFrame, previous_stats=None):
     values = []
     add_stat_val = decorator_add_stat_val(previous_stats)
 
@@ -116,6 +116,9 @@ def get_general_stats(df: pandas.DataFrame, budget_places, previous_stats=None):
 
     original = df[df['Оригинал аттестата'] == 'Да'].shape[0]
     add_stat_val(values, "Оригинал аттестата:", original)
+
+    first_high_priority = df[df['Высший приоритет'] == '1'].shape[0]
+    add_stat_val(values, "Первый высший приоритет:", first_high_priority)
 
     return {'type': 'stats', 'head': 'Общая статистика', 'values': values}
 
@@ -146,6 +149,9 @@ def get_first_priority_stats(df_general: pandas.DataFrame, budget_places, previo
     original = df[df['Оригинал аттестата'] == 'Да'].shape[0]
     add_stat_val(values, "Оригинал аттестата:", original)
 
+    first_high_priority = df[df['Высший приоритет'] == '1'].shape[0]
+    add_stat_val(values, "Первый высший приоритет:", first_high_priority)
+
     last_budget = df.iloc[budget_places - 1]
     if (last_budget['Поступление на места в рамках квоты\nцелевого приема'] == "Да") or \
             (last_budget['Право поступления\nбез вступительных испытаний'] == "Да") or \
@@ -174,14 +180,14 @@ def parse_xlsx(file: io.BytesIO, previous_stats):
     table_head = get_table_head(file)
     df = pd.read_excel(file, index_col=0, header=14, engine='openpyxl')
     df = df.loc[:, ~df.columns.str.contains('^Unnamed')]
-    # print(df.columns)
+    print(df.columns)
 
     stats.append(get_table_stats(table_head))
     if previous_stats:
-        stats.append(get_general_stats(df, table_head.budget_places, previous_stats[1]['values']))
+        stats.append(get_general_stats(df, previous_stats[1]['values']))
         stats.append(get_first_priority_stats(df, table_head.budget_places, previous_stats[2]['values']))
     else:
-        stats.append(get_general_stats(df, table_head.budget_places))
+        stats.append(get_general_stats(df))
         stats.append(get_first_priority_stats(df, table_head.budget_places))
     return table_head, stats
 
@@ -212,7 +218,6 @@ def update_hse_data(directions):
         wee = find_stat_by_text("БВИ:", am_stats[1]["values"])[0]["value"]
         my_place = find_stat_by_text("Мое место:", am_stats[1]["values"])[0]["value"]
         send_push_notifications(f'БВИ {wee}', f'Место {my_place}')
-        logger.info('Send push notifications')
     logger.info('End updating hse information.')
 
 

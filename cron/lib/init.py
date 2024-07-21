@@ -6,5 +6,5 @@ secret_folder_path = Path(
 )
 
 update_timeout = int(os.environ.get("UPDATE_TIMEOUT", 60))
-api_host = os.environ.get("API_HOST", "192.168.1.1")
+api_host = os.environ.get("API_HOST", "192.168.1.15")
 api_port = os.environ.get("API_PORT", "8003")
