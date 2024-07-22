@@ -4,12 +4,11 @@ import sys
 import time
 import schedule
 import pandas
-import requests
-import hashlib
 import openpyxl
 import pandas as pd
 import pydantic
 
+from lib.utils import *
 from pprint import pprint
 from lib.api import get_directions, add_stats, send_push_notifications
 from lib.init import update_timeout
@@ -21,28 +20,6 @@ class TableHead(pydantic.BaseModel):
     time: str
     budget_places: int
     paid_places: int
-
-
-def download_file(url):
-    try:
-        return requests.get(url, allow_redirects=True).content
-    except Exception as error:
-        logger.error(f'Downloading file failed! ({error.__class__.__name__})')
-        return b''
-
-
-def write_file(content: bytes, path):
-    with open(path, 'wb') as file:
-        file.write(content)
-
-
-def read_file(path):
-    with open(path, 'rb') as file:
-        return file.read()
-
-
-def md5(content: bytes):
-    return hashlib.md5(content).hexdigest()
 
 
 def get_table_head(file: io.BytesIO):
@@ -149,7 +126,7 @@ def get_first_priority_stats(df_general: pandas.DataFrame, budget_places, previo
     original = df[df['Оригинал аттестата'] == 'Да'].shape[0]
     add_stat_val(values, "Оригинал аттестата:", original)
 
-    first_high_priority = df[df['Высший приоритет'] == '1'].shape[0]
+    first_high_priority = df[df['Высший приоритет'] == 1].shape[0]
     add_stat_val(values, "Первый высший приоритет:", first_high_priority)
 
     last_budget = df.iloc[budget_places - 1]
@@ -157,10 +134,13 @@ def get_first_priority_stats(df_general: pandas.DataFrame, budget_places, previo
             (last_budget['Право поступления\nбез вступительных испытаний'] == "Да") or \
             (last_budget['Поступление на места\nв рамках отдельной квоты'] == "Да") or \
             (last_budget['Поступление на места в рамках квоты \nдля лиц, имеющих особое право'] == "Да"):
-        last_budget = "Занято абитуриентами в приоритетном порядке"
+        last_budget_mark = "Занято абитуриентами в приоритетном порядке"
     else:
-        last_budget = int(float(last_budget["Сумма конкурсных баллов"]))
-    add_stat_val(values, "Проходной балл на бюджет:", last_budget)
+        last_budget_mark = int(float(last_budget["Сумма конкурсных баллов"]))
+    add_stat_val(values, "Проходной балл на бюджет:", last_budget_mark)
+
+    last_budget_number = last_budget.name
+    add_stat_val(values, "Номер крайнего бюджетника:", last_budget_number)
 
     budget = df[df['Вид места'] == 'Б'].shape[0]
     add_stat_val(values, "Бюджет:", budget)
@@ -180,8 +160,8 @@ def parse_xlsx(file: io.BytesIO, previous_stats):
     table_head = get_table_head(file)
     df = pd.read_excel(file, index_col=0, header=14, engine='openpyxl')
     df = df.loc[:, ~df.columns.str.contains('^Unnamed')]
-    print(df.columns)
 
+    # print(df.columns)
     stats.append(get_table_stats(table_head))
     if previous_stats:
         stats.append(get_general_stats(df, previous_stats[1]['values']))
@@ -209,7 +189,10 @@ def update_hse_data(directions):
 
         table_head, stats = parse_xlsx(io.BytesIO(content), direction["stats"])
         logger.info(f'Information about program "{direction["name"]}" successfully updated')
-        add_stats(table_head.time, direction["name"], json.dumps(stats, ensure_ascii=False), md5_hash)
+
+        stats_string = json.dumps(stats, ensure_ascii=False)
+        logger.debug(f'Stats string length: {len(stats_string)}')
+        add_stats(table_head.time, direction["name"], stats_string, md5_hash)
         logger.debug(f'Add stats to server')
         if direction["name"] == 'Прикладная математика':
             am_stats = stats
@@ -222,7 +205,16 @@ def update_hse_data(directions):
 
 
 def schedule_parsing():
-    job = schedule.every(update_timeout).seconds.do(update_parsing)
+    cur_time = get_time()
+    update_interval = update_timeout
+    for sensitive_time in [('11:00', '11:30'), ('13:00', '13:30'), ('15:00', '15:30'), ('17:00', '17:30'),
+                           ('19:00', '19:30')]:
+        if time_in_range(*sensitive_time, cur_time):
+            update_interval = update_timeout // 5
+            logger.debug(f'Sensitive time, set update interval to "{update_interval}"')
+            break
+
+    job = schedule.every(update_interval).seconds.do(update_parsing)
     logger.info(f'Schedule parsing (next_run: {job.next_run})')
 
 
