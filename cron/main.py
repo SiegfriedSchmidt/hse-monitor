@@ -94,7 +94,11 @@ def get_general_stats(df: pandas.DataFrame, previous_stats=None):
     original = df[df['Оригинал аттестата'] == 'Да'].shape[0]
     add_stat_val(values, "Оригинал аттестата:", original)
 
-    first_high_priority = df[df['Высший приоритет'] == 1].shape[0]
+    if 'Высший приоритет' in df:
+        first_high_priority = df[df['Высший приоритет'] == 1].shape[0]
+    else:
+        first_high_priority = 'Нет такой колонки!'
+
     add_stat_val(values, "Первый высший приоритет:", first_high_priority)
 
     return {'type': 'stats', 'head': 'Общая статистика', 'values': values}
@@ -126,7 +130,11 @@ def get_first_priority_stats(df_general: pandas.DataFrame, budget_places, previo
     original = df[df['Оригинал аттестата'] == 'Да'].shape[0]
     add_stat_val(values, "Оригинал аттестата:", original)
 
-    first_high_priority = df[df['Высший приоритет'] == 1].shape[0]
+    if 'Высший приоритет' in df:
+        first_high_priority = df[df['Высший приоритет'] == 1].shape[0]
+    else:
+        first_high_priority = 'Нет такой колонки!'
+
     add_stat_val(values, "Первый высший приоритет:", first_high_priority)
 
     last_budget = df.iloc[budget_places - 1]
