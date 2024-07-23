@@ -5,6 +5,7 @@ import time
 import schedule
 import pandas
 import openpyxl
+import numpy as np
 import pandas as pd
 import pydantic
 
@@ -112,8 +113,8 @@ def get_first_priority_stats(df_general: pandas.DataFrame, budget_places, previo
     all_applications = df.shape[0]
     add_stat_val(values, "Количество заявлений:", all_applications)
 
-    my_place = df.index[df['СНИЛС / Уникальный идентификатор'] == '173-102-564 30'].tolist()
-    add_stat_val(values, "Мое место:", 'Сюда не подавал' if len(my_place) == 0 else my_place[0])
+    my_place = np.where(df['СНИЛС / Уникальный идентификатор'] == '173-102-564 30')[0]
+    add_stat_val(values, "Мое место:", 'Сюда не подавал' if len(my_place) == 0 else my_place[0] + 1)
 
     target = df[df['Поступление на места в рамках квоты\nцелевого приема'] == 'Да'].shape[0]
     add_stat_val(values, "Целевое:", target)
