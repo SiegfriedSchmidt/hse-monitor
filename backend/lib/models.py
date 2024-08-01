@@ -27,7 +27,7 @@ class Statistic(BaseModel):
     stats = peewee.CharField(max_length=8192)
     hash = peewee.CharField(max_length=512)
     # 10.07.2024 11:00:38
-    time = peewee.DateTimeField(formats='%d-%m-%Y %H:%M:%S')
+    time = peewee.DateTimeField(formats='%d.%m.%Y %H:%M:%S')
     direction = peewee.ForeignKeyField(Direction, backref='stats')
 
 
@@ -43,5 +43,8 @@ if __name__ == '__main__':
     # stat.delete_instance()
     # print(stat)
     # Subscription.delete().execute()
+    # direction = Direction.select().where(Direction.name == 'Программная инженерия').get()
+    # Statistic.create(time='27.07.2024 17:01:06', stats='{"stats": "1"}', hash='12932914921',
+    #                  direction=direction)
     print(*Direction.select(), sep='\n')
     print(*Subscription.select(), sep='\n')
